@@ -29,7 +29,10 @@ def _risk_score(raw_scores: np.ndarray) -> np.ndarray:
     maximum = float(raw_scores.max())
     if np.isclose(minimum, maximum):
         return np.zeros_like(raw_scores)
-    return 100 * (raw_scores - minimum) / (maximum - minimum)
+    normalized = 100 * (raw_scores - minimum) / (maximum - minimum)
+    # Guard the public 0-100 contract against tiny cross-platform rounding
+    # differences such as 100.00000000000001.
+    return np.clip(normalized, 0.0, 100.0)
 
 
 def detect_anomalies(
